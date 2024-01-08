@@ -15,7 +15,7 @@ G4 P2000 ;Wait for 2000ms
 ;[layer_z]
 
 Connect printer using printer IP and Api key(password used in prusaprint website).
-![Api_Login](https://github.com/UpdateNinja/3D_Printing_Timelapse_Camera_Android/assets/142933009/c3ca8159-ffda-4a51-ba9c-99c067a3ab23){width=50%}
+<img src="https://github.com/UpdateNinja/3D_Printing_Timelapse_Camera_Android/assets/142933009/c3ca8159-ffda-4a51-ba9c-99c067a3ab23" width="400">
 
 App takes picture everytime printer is parked.
 ![Image1_picture_Taken](https://github.com/UpdateNinja/3D_Printing_Timelapse_Camera_Android/assets/142933009/3dbaaa3a-991c-46e5-8647-27332585a1a6){width=50%}
