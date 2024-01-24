@@ -8,12 +8,12 @@ After layer change:
 
 ;AFTER_LAYER_CHANGE
 
-G1 X5 Y205 F{travel_speed*60} ;Move away from the print
-G4 S0 ;Wait for move to finish
-M221 S0
-G4 P6000 ;Wait for 6000ms
-M221 S100
-G4 P2000 ;Wait for 2000ms
+G1 X5 Y205 F{travel_speed*60} ;Move away from the print<br>
+G4 S0 ;Wait for move to finish<br>
+M221 S0<br>
+G4 P6000 ;Wait for 6000ms<br>
+M221 S100<br>
+G4 P2000 ;Wait for 2000ms<br>
 
 ;[layer_z]
 
