@@ -29,3 +29,7 @@ Connect printer using printer IP and Api key(password used in prusaprint website
 App takes picture everytime printer is parked.
 
 <img src="https://github.com/UpdateNinja/3D_Printing_Timelapse_Camera_Android/assets/142933009/3dbaaa3a-991c-46e5-8647-27332585a1a6" width="400">
+
+
+https://github.com/UpdateNinja/3D_Printing_Timelapse_Camera_Android/assets/142933009/047d10ae-d0d6-465a-a8ff-cfaa144ee0ff
+
