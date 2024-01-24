@@ -15,6 +15,7 @@ G4 P2000 ;Wait for 2000ms
 ;[layer_z]
 
 Slicer settings:
+
 <img src="https://github.com/UpdateNinja/3D_Printing_Timelapse_Camera_Android/assets/142933009/c275ce09-1ce0-4467-99be-85695762d917" width ="400">
 
 Connect printer using printer IP and Api key(password used in prusaprint website).
