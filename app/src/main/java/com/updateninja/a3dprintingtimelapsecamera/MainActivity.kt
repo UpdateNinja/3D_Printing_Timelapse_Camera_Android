@@ -10,7 +10,6 @@ import android.os.Environment
 import android.os.Handler
 import android.provider.MediaStore
 import android.util.Log
-import android.view.View
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -19,28 +18,41 @@ import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.ImageProxy
 import androidx.camera.view.CameraController
 import androidx.camera.view.LifecycleCameraController
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -54,12 +66,14 @@ import java.io.IOException
 class MainActivity : ComponentActivity() {
 
     private val handler = Handler()
-    private val delay: Long = 2000 // delay in milliseconds
+    private val delay: Long = 1000 // delay in milliseconds
     private var previousZ = 0.0
     private var layerCounter = 0
     private lateinit var viewModel: MyViewModel
     private var jobName:String = "Default"
     private var imageCount = 0
+
+
 
     @OptIn(ExperimentalMaterial3Api::class)
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -82,6 +96,9 @@ class MainActivity : ComponentActivity() {
                     // A surface container using the 'background' color from the theme
                     val scope = rememberCoroutineScope()
                     val scaffoldState = rememberBottomSheetScaffoldState()
+                    var jobName_info by remember { mutableStateOf("") }
+                    var pictures_taken by remember { mutableStateOf(0) }
+                    val openAlertDialog = remember { mutableStateOf(false) }
                     val controller = remember {
                         LifecycleCameraController(applicationContext).apply {
                             setEnabledUseCases(
@@ -95,7 +112,8 @@ class MainActivity : ComponentActivity() {
                             FetchDataState.SUCCESS -> {
                                 Log.d("MainActivity", "Success from MainActivity")
                                 // Access additional details if needed
-                                jobName = detailedData.jobName?:"Default"
+                                jobName = ("Job " + detailedData.jobName) ?: "Default"
+                                jobName_info = jobName
                                 val axisZ = detailedData.axisZ?:0.0
                                 val flow = detailedData.flow
                                 val printerState = detailedData.printerState
@@ -118,10 +136,12 @@ class MainActivity : ComponentActivity() {
                             }
 
                             FetchDataState.TAKE_PHOTO -> {
-                                Log.d("MainActivity", "Take Photo from MainActivity")
-                                takePhoto(
-                                    controller = controller
-                                )
+                                Log.d("MainActivity", "Take Photo from MainActivity after 500 milliseconds")
+                                handler.postDelayed({
+                                    takePhoto(controller = controller)
+                                },500)
+                                pictures_taken++
+
                             }
 
                             FetchDataState.FAILED -> {
@@ -136,8 +156,20 @@ class MainActivity : ComponentActivity() {
                         }
                     }
 
-
-
+                    when {
+                        // ...
+                        openAlertDialog.value -> {
+                            AlertDialogInfo(
+                                onDismissRequest = { openAlertDialog.value = false },
+                                onConfirmation = {
+                                    openAlertDialog.value = false
+                                },
+                                dialogTitle = "Info",
+                                icon = Icons.Default.Info
+                            )
+                        }
+                    }
+                    
                     BottomSheetScaffold(
                         scaffoldState = scaffoldState,
                         sheetPeekHeight = 0.dp,
@@ -154,46 +186,77 @@ class MainActivity : ComponentActivity() {
                                 .fillMaxSize()
                                 .padding(padding)
                         ) {
+
                             CameraPreview(
                                 controller = controller,
                                 modifier = Modifier
                                     .fillMaxSize()
                             )
 
-                            Row(
+                            Box(
                                 modifier = Modifier
+                                    .background(colorResource(id = R.color.grey_background))
                                     .fillMaxWidth()
-                                    .align(Alignment.BottomCenter)
-                                    .padding(16.dp),
-                                horizontalArrangement = Arrangement.SpaceAround
-                            ) {
-                                IconButton(
-                                    onClick = {
-                                        scope.launch {
-                                            scaffoldState.bottomSheetState.expand()
-                                        }
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Settings, "Open Settings", tint = Color.Black,
-                                        modifier = Modifier.size(32.dp)
-                                    )
-                                }
-
-                                IconButton(
-                                    onClick = {
-                                        takePhoto(
-                                            controller = controller
-                                        )
-                                    }
-                                ) {
-                                    Icon(
-                                        imageVector = Icons.Default.PhotoCamera, "Take Photo", tint = Color.Black,
-                                        modifier = Modifier.size(32.dp)
-                                    )
+                                    .padding(16.dp)
+                            ){
+                                Column {
+                                    Text(text = "Job name : $jobName_info", fontSize = 16.sp, color = Color.White)
+                                    Text(text = "Pictures taken : $pictures_taken", fontSize = 16.sp, color = Color.White)
                                 }
 
                             }
+
+
+                            Box(modifier = Modifier
+                                .background(colorResource(id = R.color.grey_background))
+                                .fillMaxWidth()
+                                .padding(16.dp)
+                                .align(Alignment.BottomCenter)){
+                                Row(
+                                    modifier = Modifier
+                                        .fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceAround
+                                ) {
+                                    IconButton(
+                                        onClick = {
+                                            scope.launch {
+                                                scaffoldState.bottomSheetState.expand()
+                                            }
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Settings, "Open Settings", tint = Color.White,
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
+
+                                    IconButton(
+                                        onClick = {
+                                            takePhoto(
+                                                controller = controller
+                                            )
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.PhotoCamera, "Take Photo", tint = Color.White,
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
+
+                                    IconButton(
+                                        onClick = {
+                                            openAlertDialog.value = !openAlertDialog.value
+                                        }
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Info, "Info", tint = Color.White,
+                                            modifier = Modifier.size(32.dp)
+                                        )
+                                    }
+
+                                }
+                            }
+
                         }
                     }
 
@@ -297,4 +360,49 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun AlertDialogInfo(
+    onDismissRequest: () -> Unit,
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    icon: ImageVector,
+) {
+    AlertDialog(
+        icon = {
+            Icon(icon, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Column(){
+                Text(text = "This is open-source project created by UpdateNinja")
+                Spacer(modifier = Modifier.padding(16.dp))
+                Text(text = "1. Connect your Prusa printer using Credentials(Settings)")
+                Text(text = "2. Modify your custom G-Code instructions in github readme")
+                Text(text = "3. Start print normally")
+                Spacer(modifier = Modifier.padding(16.dp))
+                Text(text = "Bug reports : Contact@updateninja.fi")
+            }
+
+        },
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
+                }
+            ) {
+                Text("Close")
+            }
+        },
+        dismissButton = {
+
+        }
+    )
 }

@@ -92,10 +92,6 @@ class HttpClient(private val viewModel:MyViewModel) {
                     }
 
                     if (axisZ>previousZ && flow==0.0){
-                        layerCountTimer++
-                    }
-
-                    if (layerCountTimer>=2){
                         Log.d("Camera","Shoot camera")
                         viewModel.updateData(FetchData(connectionStatus = FetchDataState.TAKE_PHOTO))
                         previousZ=axisZ

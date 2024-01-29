@@ -18,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -41,12 +42,13 @@ fun SettingsBottomSheetContent(
 ){
 
 
-    var ipAddress by remember { mutableStateOf("") }
-    var apiKey by remember { mutableStateOf("") }
+    var ipAddress by rememberSaveable { mutableStateOf("") }
+    var apiKey by rememberSaveable { mutableStateOf("") }
 
     var text by remember { mutableStateOf("") }
 
     viewModel.data.observe(lifecycleOwner) { detailedData ->
+
         when (detailedData.connectionStatus) {
             FetchDataState.SUCCESS -> {
                 Log.d("BottomSheet", "Success from BottomSheet")
@@ -110,8 +112,12 @@ fun SettingsBottomSheetContent(
 }
 
 @Composable
-fun SimpleOutlinedTextFieldSample(isIp:Boolean,placeholder : String, onValueChange: (String) -> Unit) {
-    var text by remember { mutableStateOf("") }
+fun SimpleOutlinedTextFieldSample(
+    isIp:Boolean,
+    placeholder : String,
+    onValueChange: (String) -> Unit
+) {
+    var text by rememberSaveable { mutableStateOf("") }
 
     OutlinedTextField(
         value = text,
